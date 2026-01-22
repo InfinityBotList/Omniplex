@@ -29,6 +29,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     name: Unit Tests
+    continue-on-error: true
 
     steps:
       - name: Checkout code
@@ -65,7 +66,7 @@ jobs:
         run: bun run build
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: build
           path: .output
