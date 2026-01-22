@@ -1,0 +1,66 @@
+name: Feature Request
+description: Suggest a new feature or improvement
+title: "[FEATURE] "
+labels: ["enhancement", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for suggesting a feature! Please fill out the form below to help us understand your request.
+
+  - type: checkboxes
+    attributes:
+      label: Prerequisites
+      description: Make sure you have completed the following steps
+      options:
+        - label: I have searched the existing feature requests
+          required: true
+        - label: This feature aligns with Omniplex's vision
+          required: true
+
+  - type: textarea
+    attributes:
+      label: Description
+      description: Provide a clear and concise description of the feature
+      placeholder: |
+        I would like to have a dark mode toggle in the header for quick theme switching...
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Motivation
+      description: Why do you want this feature? What problem does it solve?
+      placeholder: |
+        Users want quick access to theme switching without opening the settings panel...
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Proposed Solution
+      description: Describe how you envision this feature working
+      placeholder: |
+        Add a moon/sun icon next to the settings gear in the header that toggles the theme immediately...
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Alternative Solutions
+      description: Have you considered alternative approaches?
+      placeholder: |
+        - Could add it to the settings panel (but would require clicking settings first)
+        - Could add keyboard shortcut (but wouldn't be discoverable)
+
+  - type: textarea
+    attributes:
+      label: Additional Context
+      description: Add any other relevant information, screenshots, mockups, etc.
+
+  - type: checkboxes
+    attributes:
+      label: Willing to Contribute?
+      description: Are you interested in implementing this feature yourself?
+      options:
+        - label: Yes, I am willing to implement this feature

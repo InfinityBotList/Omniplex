@@ -1,0 +1,113 @@
+name: Bug Report
+description: Report a bug or issue
+title: "[BUG] "
+labels: ["bug", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for reporting a bug! Please fill out the form below to help us understand and fix the issue.
+
+  - type: checkboxes
+    attributes:
+      label: Prerequisites
+      description: Make sure you have completed the following steps
+      options:
+        - label: I have searched the existing issues
+          required: true
+        - label: I am using the latest version of Omniplex
+          required: true
+        - label: I have tried reproducing the issue in a fresh installation
+          required: true
+
+  - type: textarea
+    attributes:
+      label: Description
+      description: Provide a clear and concise description of the bug
+      placeholder: |
+        The search bar continues showing a loading animation even after results appear...
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Steps to Reproduce
+      description: Provide detailed steps to reproduce the issue
+      placeholder: |
+        1. Open the application
+        2. Click on the search bar
+        3. Type "discord"
+        4. Observe the spinner continues spinning after results appear
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Expected Behavior
+      description: Describe what you expect to happen
+      placeholder: The loading spinner should stop once results are loaded
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Current Behavior
+      description: Describe what actually happens
+      placeholder: The loading spinner never stops spinning
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Screenshots
+      description: Add screenshots or screen recordings if applicable
+      placeholder: Paste images here (optional)
+
+  - type: dropdown
+    attributes:
+      label: Operating System
+      options:
+        - Windows
+        - macOS
+        - Linux
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    attributes:
+      label: Browser
+      options:
+        - Chrome/Edge (Chromium)
+        - Firefox
+        - Safari
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    attributes:
+      label: Browser Version
+      placeholder: "120.0.0"
+    validations:
+      required: true
+
+  - type: input
+    attributes:
+      label: Node Version
+      placeholder: "18.17.0"
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Additional Context
+      description: Add any other relevant information
+      placeholder: Any other details that might help us understand the issue
+
+  - type: checkboxes
+    attributes:
+      label: Willing to Submit a Pull Request?
+      description: Are you interested in fixing this bug yourself?
+      options:
+        - label: Yes, I am willing to submit a pull request
