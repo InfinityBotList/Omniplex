@@ -1,8 +1,8 @@
-import type { ReactNode } from 'react'
+import type { ReactNode } from "react";
 
 interface PageLayoutProps {
-  children: ReactNode
-  className?: string
+	children: ReactNode;
+	className?: string;
 }
 
 /**
@@ -10,10 +10,6 @@ interface PageLayoutProps {
  * Provides consistent page structure with proper spacing
  * Background is transparent to allow BackgroundEffects to show through
  */
-export function PageLayout({ children, className = '' }: PageLayoutProps) {
-  return (
-    <div className={`min-h-screen ${className}`}>
-      {children}
-    </div>
-  )
+export function PageLayout({ children, className = "" }: PageLayoutProps) {
+	return <div className={`min-h-screen ${className}`}>{children}</div>;
 }
