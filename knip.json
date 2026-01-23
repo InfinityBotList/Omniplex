@@ -1,0 +1,39 @@
+{
+  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "entry": [
+    "src/routes/**/*.tsx",
+    "src/components/layouts/index.ts",
+    "src/lib/index.ts"
+  ],
+  "project": [
+    "src/**/*.{ts,tsx}"
+  ],
+  "ignoreDependencies": [
+    "postcss",
+    "tailwindcss"
+  ],
+  "ignoreExportsUsedInFile": true,
+  "ignoreBinaries": [],
+  "includeEntryExports": true,
+  "rules": {
+    "classMembers": "error",
+    "enumMembers": "error",
+    "types": "error",
+    "exports": "error",
+    "files": "error",
+    "dependencies": "error",
+    "duplicates": "error",
+    "nsExports": "error",
+    "nsTypes": "error"
+  },
+  "ignore": [
+    "**/*.spec.ts",
+    "**/*.test.ts",
+    "**/routeTree.gen.ts",
+    "**/node_modules/**",
+    "dist/**",
+    ".wrangler/**",
+    "coverage/**",
+    "public/**"
+  ]
+}

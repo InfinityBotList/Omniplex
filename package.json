@@ -12,7 +12,14 @@
     "lint": "biome lint",
     "check": "biome check",
     "deploy": "bun run build && wrangler deploy",
-    "start": "node --import ./.output/server/instrument.server.mjs .output/server/index.mjs"
+    "knip": "bunx knip",
+    "knip:exports": "bunx knip --exports",
+    "knip:deps": "bunx knip --dependencies",
+    "knip:files": "bunx knip --files",
+    "knip:prod": "bunx knip --production",
+    "knip:fix": "bunx knip --fix",
+    "start": "node --import ./.output/server/instrument.server.mjs .output/server/index.mjs",
+    "prepare": "husky"
   },
   "dependencies": {
     "@cloudflare/vite-plugin": "^1.13.8",
@@ -44,6 +51,8 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.2.4",
+    "@commitlint/cli": "^20.2.0",
+    "@commitlint/config-conventional": "^20.2.0",
     "@tanstack/devtools-vite": "^0.3.11",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/react": "^16.2.0",
@@ -51,8 +60,11 @@
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
     "@vitejs/plugin-react": "^5.0.4",
+    "commitlint": "^20.2.0",
     "cross-env": "^7.0.3",
+    "husky": "^9.1.7",
     "jsdom": "^27.0.0",
+    "knip": "^5.78.0",
     "typescript": "^5.7.2",
     "vite": "^7.1.7",
     "vitest": "^3.0.5",

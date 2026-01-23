@@ -16,6 +16,17 @@ body {
   font-family: var(--font-family);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* Prevent white flash - default to dark background before theme loads */
+  background-color: oklch(0.1 0.02 265);
+}
+
+/* Override with actual theme once loaded */
+html:not(.dark) body {
+  background-color: oklch(0.97 0.01 var(--accent-hue));
+}
+
+html.dark body {
+  background-color: oklch(0.1 0.02 var(--accent-hue));
 }
 
 code {

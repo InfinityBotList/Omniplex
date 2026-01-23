@@ -81,6 +81,111 @@ export interface PacksAllResponse {
 	results: Pack[];
 }
 
+// Auth types
+export interface OAuthMetadata {
+	url: string;
+	client_id: string;
+}
+
+export interface AuthLoginResponse {
+	token: string;
+	user_id: string;
+	target_id: string;
+	session_id: string;
+	expiresOn?: number;
+}
+
+export interface AuthTokenRefreshResponse {
+	context: Record<string, unknown>;
+	message: string;
+}
+
+// User Profile types (from /users/{id} endpoint)
+export interface ExtraLink {
+	name: string;
+	value: string;
+}
+
+export interface UserProfile {
+	about: string;
+	banned: boolean;
+	bot_developer: boolean;
+	bug_hunters: boolean;
+	captcha_sponsor_enabled: boolean;
+	certified: boolean;
+	created_at: string;
+	experiments: string[];
+	extra_links: ExtraLink[];
+	itag: string;
+	last_booster_claim: string;
+	staff: boolean;
+	updated_at: string;
+	user: User;
+	user_bots: Bot[];
+	user_packs: Pack[];
+	user_teams: Team[];
+	vote_banned: boolean;
+}
+
+export interface TeamMember {
+	created_at: string;
+	data_holder: boolean;
+	flags: string[];
+	itag: string;
+	mentionable: boolean;
+	service: string;
+	team_id: string;
+	user: User;
+}
+
+export interface Server {
+	server_id: string;
+	name: string;
+	short: string;
+	tags: string[];
+	avatar: Asset;
+	banner: Asset;
+	clicks: number;
+	invite_clicks: number;
+	votes: number;
+	approximate_votes: number;
+	online_members: number;
+	total_members: number;
+	premium: boolean;
+	nsfw: boolean;
+	state: string;
+	type: string;
+	vanity: string;
+	vanity_ref: string;
+}
+
+export interface TeamEntities {
+	bots: Bot[];
+	members: TeamMember[];
+	servers: Server[];
+	targets: string[];
+}
+
+export interface Team {
+	id: string;
+	name: string;
+	short: string;
+	tags: string[];
+	avatar: Asset;
+	banner: Asset;
+	extra_links: ExtraLink[];
+	entities: TeamEntities;
+	service: string;
+	nsfw: boolean;
+	votes: number;
+	approximate_votes: number;
+	vote_banned: boolean;
+	vanity: string;
+	vanity_ref: string;
+	created_at: string;
+	updated_at: string;
+}
+
 // API Response wrapper
 export interface ApiResponse<T> {
 	data: T;

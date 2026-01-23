@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { BotCard } from "@/components/cards/BotCard";
 import { PackCard } from "@/components/cards/PackCard";
 import { useBotsIndex, usePacks } from "~/lib/queries";
+import { SOCIAL_LINKS, ROUTES } from "~/lib/constants";
 import {
 	PageLayout,
 	Section,
@@ -44,12 +45,12 @@ function HomePage() {
 				description="Browse thousands of verified bots, servers, and curated collections. Join our growing community of Discord enthusiasts today!"
 				primaryAction={{
 					label: "Browse All Bots",
-					href: "/bots",
+					href: ROUTES.bots,
 					icon: CTAIcons.bolt,
 				}}
 				secondaryAction={{
 					label: "Join Discord",
-					href: "https://discord.gg/omniplex",
+					href: SOCIAL_LINKS.discord,
 					icon: CTAIcons.discord,
 					external: true,
 				}}
@@ -141,7 +142,7 @@ function PopularPacksSection() {
 				title="Bot"
 				titleHighlight="Packs"
 				description="Curated collections of bots organized by purpose, category, and use case for the perfect server setup."
-				action={{ label: "View all packs", href: "/packs" }}
+				action={{ label: "View all packs", href: ROUTES.packs }}
 			/>
 
 			{/* Packs Grid */}

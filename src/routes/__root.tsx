@@ -20,7 +20,9 @@ import { Header } from "../components/static/Header";
 import { BackgroundEffects } from "../components/static/BackgroundEffects";
 import { Footer } from "../components/layouts";
 import { ThemeProvider } from "../lib/theme-store";
+import { AuthProvider } from "../lib/auth-store";
 import { logger } from "../lib/logger";
+import { APP_METADATA, ROUTES } from "../lib/constants";
 
 import TanStackQueryDevtools from "../integrations/tanstack-query/devtools";
 
@@ -43,16 +45,15 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 				content: "width=device-width, initial-scale=1",
 			},
 			{
-				title: "Omniplex - Discover Discord Bots, Servers & Packs",
+				title: APP_METADATA.title,
 			},
 			{
 				name: "description",
-				content:
-					"The ultimate destination for discovering Discord bots, servers, and curated bot packs. Elevate your Discord experience.",
+				content: APP_METADATA.description,
 			},
 			{
 				name: "theme-color",
-				content: "#8b5cf6",
+				content: APP_METADATA.themeColor,
 			},
 		],
 		links: [
@@ -104,13 +105,18 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         const mode = settings?.mode || 'system';
         const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
         const isDark = mode === 'dark' || (mode === 'system' && prefersDark);
+        
+        // Apply dark class immediately
         document.documentElement.classList.toggle('dark', isDark);
         
         // Apply accent hue if stored
-        if (settings?.accent) {
-          const hues = { violet: 265, blue: 230, cyan: 195, teal: 175, green: 145, orange: 40, pink: 330, rose: 350 };
-          document.documentElement.style.setProperty('--accent-hue', hues[settings.accent] || 265);
-        }
+        const hues = { violet: 265, blue: 230, cyan: 195, teal: 175, green: 145, orange: 40, pink: 330, rose: 350 };
+        const accentHue = settings?.accent ? (hues[settings.accent] || 265) : 265;
+        document.documentElement.style.setProperty('--accent-hue', accentHue);
+        
+        // Set background color immediately to prevent flash
+        const bgColor = isDark ? 'oklch(0.1 0.02 ' + accentHue + ')' : 'oklch(0.97 0.01 ' + accentHue + ')';
+        document.body.style.backgroundColor = bgColor;
         
         // Apply effect toggles
         if (settings?.animations === false) document.documentElement.classList.add('no-animations');
@@ -126,26 +132,28 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 				<script dangerouslySetInnerHTML={{ __html: themeScript }} />
 			</head>
 			<body className="text-foreground antialiased">
-				<ThemeProvider>
-					<BackgroundEffects />
-					<div className="relative z-10 flex flex-col min-h-screen">
-						<Header />
-						<main className="flex-1">{children}</main>
-						<Footer />
-					</div>
-					<TanStackDevtools
-						config={{
-							position: "bottom-right",
-						}}
-						plugins={[
-							{
-								name: "Tanstack Router",
-								render: <TanStackRouterDevtoolsPanel />,
-							},
-							TanStackQueryDevtools,
-						]}
-					/>
-				</ThemeProvider>
+				<AuthProvider>
+					<ThemeProvider>
+						<BackgroundEffects />
+						<div className="relative z-10 flex flex-col min-h-screen">
+							<Header />
+							<main className="flex-1">{children}</main>
+							<Footer />
+						</div>
+						<TanStackDevtools
+							config={{
+								position: "bottom-right",
+							}}
+							plugins={[
+								{
+									name: "Tanstack Router",
+									render: <TanStackRouterDevtoolsPanel />,
+								},
+								TanStackQueryDevtools,
+							]}
+						/>
+					</ThemeProvider>
+				</AuthProvider>
 				<Scripts />
 			</body>
 		</html>
@@ -200,7 +208,7 @@ function NotFoundPage() {
 						Back to Home
 					</Link>
 					<Link
-						to="/bots"
+						to={ROUTES.bots}
 						className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl glass text-foreground font-semibold hover:scale-105 transition-all duration-300"
 					>
 						<Sparkles className="w-4 h-4" />
@@ -298,7 +306,7 @@ function ErrorPage({ error }: { error: Error }) {
 						Try Again
 					</button>
 					<Link
-						to="/"
+						to={ROUTES.home}
 						className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl glass text-foreground font-semibold hover:scale-105 transition-all duration-300"
 					>
 						<Home className="w-4 h-4" />

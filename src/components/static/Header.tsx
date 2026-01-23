@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { useState, useRef, useEffect, useMemo } from "react";
 import {
 	Bot,
@@ -9,10 +9,20 @@ import {
 	Sparkles,
 	X,
 	Loader,
+	LogOut,
+	User,
+	Settings,
+	ChevronDown,
+	LayoutDashboard,
+	Heart,
+	Bell,
 } from "lucide-react";
 import { SettingsPanel, QuickThemeToggle } from "./SettingsPanel";
-import { useSearch } from "~/lib/queries";
+import { useSearch, useOAuthMetadata, useLogout, useUser } from "~/lib/queries";
+import { useAuth } from "~/lib/auth-store";
 import { logger } from "~/lib/logger";
+import { ROUTES } from "~/lib/constants";
+import { getUserAvatarUrl } from "~/lib/images";
 
 interface SearchResult {
 	id: string;
@@ -23,21 +33,69 @@ interface SearchResult {
 }
 
 export function Header() {
+	const navigate = useNavigate();
 	const [isOpen, setIsOpen] = useState(false);
 	const [searchQuery, setSearchQuery] = useState("");
 	const [showResults, setShowResults] = useState(false);
+	const [showUserMenu, setShowUserMenu] = useState(false);
 	const searchContainerRef = useRef<HTMLDivElement>(null);
+	const userMenuRef = useRef<HTMLDivElement>(null);
 	const _searchTimeoutRef = useRef<NodeJS.Timeout>();
+
+	// Auth state
+	const { isAuthenticated, userId, isLoading: isAuthLoading, logout: authLogout } = useAuth();
+	const { data: oauthMeta } = useOAuthMetadata();
+	const { mutate: logoutMutation } = useLogout();
+
+	// Fetch user profile when authenticated (only when we have a valid userId)
+	const shouldFetchUser = isAuthenticated && !isAuthLoading && !!userId && userId.length > 0;
+	const { data: userProfile } = useUser(shouldFetchUser ? userId : null);
 
 	// Use React Query for search
 	const { data: rawSearchData, isPending: isSearching } =
 		useSearch(searchQuery);
 
+	// Get user display info
+	const userDisplayName = userProfile?.user?.display_name || userProfile?.user?.username || "User";
+	const userAvatarUrl = userId && userProfile?.user?.avatar
+		? getUserAvatarUrl(userId, userProfile.user.avatar, { size: 64 })
+		: userId
+			? getUserAvatarUrl(userId, null, { size: 64 })
+			: null;
+
 	const navItems = [
-		{ label: "Bots", href: "/bots", icon: Bot },
-		{ label: "Servers", href: "/servers", icon: Server },
-		{ label: "Packs", href: "/packs", icon: Package },
+		{ label: "Bots", href: ROUTES.bots, icon: Bot },
+		{ label: "Servers", href: ROUTES.servers, icon: Server },
+		{ label: "Packs", href: ROUTES.packs, icon: Package },
 	];
+
+	// Handle login button click
+	const handleDiscordLogin = () => {
+		if (!oauthMeta?.url) {
+			logger.error("OAuth metadata not available");
+			return;
+		}
+
+		// Store current URL for redirect after login
+		localStorage.setItem("auth_redirect", window.location.pathname);
+
+		const discordAuthUrl = oauthMeta.url.replace(
+			"%REDIRECT_URL%",
+			window.location.origin,
+		);
+
+		logger.debug("🔑 Redirecting to Discord OAuth");
+		window.location.href = discordAuthUrl;
+	};
+
+	// Handle logout
+	const handleLogout = () => {
+		// Call mutation to clear server state/queries
+		logoutMutation();
+		// Call context to clear local state
+		authLogout();
+		navigate({ to: ROUTES.home });
+	};
 
 	// Close results when clicking outside
 	useEffect(() => {
@@ -47,6 +105,12 @@ export function Header() {
 				!searchContainerRef.current.contains(event.target as Node)
 			) {
 				setShowResults(false);
+			}
+			if (
+				userMenuRef.current &&
+				!userMenuRef.current.contains(event.target as Node)
+			) {
+				setShowUserMenu(false);
 			}
 		}
 		document.addEventListener("mousedown", handleClickOutside);
@@ -270,12 +334,86 @@ export function Header() {
 								<QuickThemeToggle />
 								<SettingsPanel />
 
-								<a
-									href="/login"
-									className="hidden sm:flex items-center justify-center h-10 px-5 rounded-xl gradient-brand text-white text-sm font-semibold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
-								>
-									Login
-								</a>
+								{isAuthenticated && userId ? (
+									<div className="relative hidden sm:block" ref={userMenuRef}>
+										<button
+											onClick={() => setShowUserMenu(!showUserMenu)}
+											className="flex items-center gap-2 h-10 pl-1 pr-3 rounded-xl glass hover:bg-muted/50 transition-all duration-200"
+										>
+											<img
+												src={userAvatarUrl || getUserAvatarUrl(userId, null, { size: 64 })}
+												alt={userDisplayName}
+												className="h-8 w-8 rounded-lg object-cover"
+											/>
+											<ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform duration-200 ${showUserMenu ? 'rotate-180' : ''}`} />
+										</button>
+
+										{/* User Dropdown Menu */}
+										{showUserMenu && (
+											<div className="absolute right-0 top-full mt-2 w-56 rounded-xl glass shadow-xl z-50 py-2 animate-in fade-in slide-in-from-top-2 duration-200">
+												<div className="px-3 py-2 border-b border-border/50">
+													<p className="text-sm font-medium text-foreground">{userDisplayName}</p>
+													<p className="text-xs text-muted-foreground truncate">@{userProfile?.user?.username || userId}</p>
+												</div>
+
+												<div className="py-1">
+													<Link
+														to={`/user/${userId}` as any}
+														onClick={() => setShowUserMenu(false)}
+														className="flex items-center gap-3 px-3 py-2 text-sm text-foreground hover:bg-muted/50 transition-colors"
+													>
+														<User className="h-4 w-4 text-muted-foreground" />
+														My Profile
+													</Link>
+													<Link
+														to="/dashboard" as any
+														onClick={() => setShowUserMenu(false)}
+														className="flex items-center gap-3 px-3 py-2 text-sm text-foreground hover:bg-muted/50 transition-colors"
+													>
+														<LayoutDashboard className="h-4 w-4 text-muted-foreground" />
+														Dashboard
+													</Link>
+													<Link
+														to="/notifications" as any
+														onClick={() => setShowUserMenu(false)}
+														className="flex items-center gap-3 px-3 py-2 text-sm text-foreground hover:bg-muted/50 transition-colors"
+													>
+														<Bell className="h-4 w-4 text-muted-foreground" />
+														Notifications
+													</Link>
+													<Link
+														to="/favorites" as any
+														onClick={() => setShowUserMenu(false)}
+														className="flex items-center gap-3 px-3 py-2 text-sm text-foreground hover:bg-muted/50 transition-colors"
+													>
+														<Heart className="h-4 w-4 text-muted-foreground" />
+														Favorites
+													</Link>
+												</div>
+
+												<div className="border-t border-border/50 pt-1">
+													<button
+														onClick={() => {
+															setShowUserMenu(false);
+															handleLogout();
+														}}
+														className="flex items-center gap-3 w-full px-3 py-2 text-sm text-destructive hover:bg-destructive/10 transition-colors"
+													>
+														<LogOut className="h-4 w-4" />
+														Logout
+													</button>
+												</div>
+											</div>
+										)}
+									</div>
+								) : (
+									<button
+										onClick={handleDiscordLogin}
+										className="hidden sm:flex items-center justify-center h-10 px-5 rounded-xl gradient-brand text-white text-sm font-semibold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
+									>
+										Login
+									</button>
+								)}
 
 								{/* Mobile Menu Button */}
 								<button
@@ -391,19 +529,87 @@ export function Header() {
 								<span className="font-medium">{item.label}</span>
 							</Link>
 						))}
+
+						{/* User-specific navigation when logged in */}
+						{isAuthenticated && userId && (
+							<>
+								<div className="my-2 border-t border-border/50" />
+								<Link
+									to={`/user/${userId}` as any}
+									onClick={() => setIsOpen(false)}
+									className="flex items-center gap-3 px-4 py-3 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all duration-200"
+								>
+									<User className="h-5 w-5" />
+									<span className="font-medium">My Profile</span>
+								</Link>
+								<Link
+									to="/dashboard" as any
+									onClick={() => setIsOpen(false)}
+									className="flex items-center gap-3 px-4 py-3 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all duration-200"
+								>
+									<LayoutDashboard className="h-5 w-5" />
+									<span className="font-medium">Dashboard</span>
+								</Link>
+								<Link
+									to="/notifications" as any
+									onClick={() => setIsOpen(false)}
+									className="flex items-center gap-3 px-4 py-3 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all duration-200"
+								>
+									<Bell className="h-5 w-5" />
+									<span className="font-medium">Notifications</span>
+								</Link>
+								<Link
+									to="/favorites" as any
+									onClick={() => setIsOpen(false)}
+									className="flex items-center gap-3 px-4 py-3 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all duration-200"
+								>
+									<Heart className="h-5 w-5" />
+									<span className="font-medium">Favorites</span>
+								</Link>
+							</>
+						)}
 					</nav>
 
 					{/* Footer */}
 					<div className="p-4 border-t border-border/50">
-						<a
-							href="/login"
-							className="flex items-center justify-center w-full h-12 rounded-xl gradient-brand text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
-						>
-							Login with Discord
-						</a>
+						{isAuthenticated && userId ? (
+							<div className="space-y-3">
+								<div className="flex items-center gap-3 px-3 py-2">
+									<img
+										src={userAvatarUrl || getUserAvatarUrl(userId, null, { size: 64 })}
+										alt={userDisplayName}
+										className="h-10 w-10 rounded-xl object-cover"
+									/>
+									<div className="flex-1 min-w-0">
+										<p className="text-sm font-medium text-foreground">{userDisplayName}</p>
+										<p className="text-xs text-muted-foreground truncate">@{userProfile?.user?.username || userId}</p>
+									</div>
+								</div>
+								<button
+									onClick={() => {
+										setIsOpen(false);
+										handleLogout();
+									}}
+									className="flex items-center justify-center gap-2 w-full h-12 rounded-xl bg-destructive/10 text-destructive font-semibold hover:bg-destructive/20 transition-all duration-300"
+								>
+									<LogOut className="h-5 w-5" />
+									Logout
+								</button>
+							</div>
+						) : (
+							<button
+								onClick={() => {
+									setIsOpen(false);
+									handleDiscordLogin();
+								}}
+								className="flex items-center justify-center w-full h-12 rounded-xl gradient-brand text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+							>
+								Login with Discord
+							</button>
+						)}
 					</div>
-				</div>
-			</aside>
+			</div>
+		</aside>
 
 			{/* Spacer for fixed header */}
 			<div className="h-20" />

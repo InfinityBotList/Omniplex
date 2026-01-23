@@ -8,8 +8,10 @@
 // CDN Configuration
 // =============================================================================
 
-const CDN_BASE = "https://cdn.omniplex.gg";
-const DISCORD_CDN = "https://cdn.discordapp.com";
+import { API_CONFIG } from "./constants";
+
+const CDN_BASE = API_CONFIG.cdn;
+const DISCORD_CDN = API_CONFIG.discord_cdn;
 
 export type ImageSize = 16 | 32 | 64 | 128 | 256 | 512 | 1024;
 export type ImageFormat = "webp" | "png" | "jpg" | "gif";

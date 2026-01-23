@@ -10,11 +10,17 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthSauronRouteImport } from './routes/auth/sauron'
 import { Route as DemoSentryTestingRouteImport } from './routes/demo/sentry.testing'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthSauronRoute = AuthSauronRouteImport.update({
+  id: '/auth/sauron',
+  path: '/auth/sauron',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DemoSentryTestingRoute = DemoSentryTestingRouteImport.update({
@@ -25,27 +31,31 @@ const DemoSentryTestingRoute = DemoSentryTestingRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth/sauron': typeof AuthSauronRoute
   '/demo/sentry/testing': typeof DemoSentryTestingRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth/sauron': typeof AuthSauronRoute
   '/demo/sentry/testing': typeof DemoSentryTestingRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/auth/sauron': typeof AuthSauronRoute
   '/demo/sentry/testing': typeof DemoSentryTestingRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/demo/sentry/testing'
+  fullPaths: '/' | '/auth/sauron' | '/demo/sentry/testing'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/demo/sentry/testing'
-  id: '__root__' | '/' | '/demo/sentry/testing'
+  to: '/' | '/auth/sauron' | '/demo/sentry/testing'
+  id: '__root__' | '/' | '/auth/sauron' | '/demo/sentry/testing'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthSauronRoute: typeof AuthSauronRoute
   DemoSentryTestingRoute: typeof DemoSentryTestingRoute
 }
 
@@ -56,6 +66,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/sauron': {
+      id: '/auth/sauron'
+      path: '/auth/sauron'
+      fullPath: '/auth/sauron'
+      preLoaderRoute: typeof AuthSauronRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/demo/sentry/testing': {
@@ -70,6 +87,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthSauronRoute: AuthSauronRoute,
   DemoSentryTestingRoute: DemoSentryTestingRoute,
 }
 export const routeTree = rootRouteImport
